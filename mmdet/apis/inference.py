@@ -12,7 +12,7 @@ from mmcv.transforms import Compose
 from mmengine.config import Config
 from mmengine.dataset import default_collate
 from mmengine.model.utils import revert_sync_batchnorm
-from mmengine.registry import init_default_scope
+from mmengine.registry import init_default_scope, DefaultScope
 from mmengine.runner import load_checkpoint
 
 from mmdet.registry import DATASETS
@@ -156,7 +156,9 @@ def inference_detector(
             # in module unregistered error if not prefixed with mmdet.
             test_pipeline[0].type = 'mmdet.LoadImageFromNDArray'
 
-        test_pipeline = Compose(test_pipeline)
+        scope = model.cfg.get('default_scope', 'mmdet')
+        with DefaultScope.overwrite_default_scope(scope):
+            test_pipeline = Compose(test_pipeline)
 
     if model.data_preprocessor.device.type == 'cpu':
         for m in model.modules():
