@@ -29,11 +29,12 @@ class PipelineSwitchHook(Hook):
             # The dataset pipeline cannot be updated when persistent_workers
             # is True, so we need to force the dataloader's multi-process
             # restart. This is a very hacky approach.
-            if hasattr(train_loader.dataset, 'datasets'):
-                for dataset in train_loader.dataset.datasets:
-                    dataset.pipeline = Compose(self.switch_pipeline)
-            else:
+            if hasattr(train_loader.dataset, 'pipeline'):
                 train_loader.dataset.pipeline = Compose(self.switch_pipeline)
+            elif hasattr(train_loader.dataset, 'datasets'):
+                for dataset in train_loader.dataset.datasets:
+                    if hasattr(dataset, 'pipeline'):
+                        dataset.pipeline = Compose(self.switch_pipeline)
             if hasattr(train_loader, 'persistent_workers'
                        ) and train_loader.persistent_workers is True:
                 train_loader._DataLoader__initialized = False
