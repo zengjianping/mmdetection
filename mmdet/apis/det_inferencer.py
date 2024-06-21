@@ -25,6 +25,7 @@ from mmdet.structures import DetDataSample
 from mmdet.structures.mask import encode_mask_results, mask2bbox
 from mmdet.utils import ConfigType
 from ..evaluation import get_classes
+from ..utils import get_test_pipeline_cfg
 
 try:
     from panopticapi.evaluation import VOID
@@ -158,7 +159,8 @@ class DetInferencer(BaseInferencer):
 
     def _init_pipeline(self, cfg: ConfigType) -> Compose:
         """Initialize the test pipeline."""
-        pipeline_cfg = cfg.test_dataloader.dataset.pipeline
+        #pipeline_cfg = cfg.test_dataloader.dataset.pipeline
+        pipeline_cfg = get_test_pipeline_cfg(cfg)
 
         # For inference, the key of ``img_id`` is not used.
         if 'meta_keys' in pipeline_cfg[-1]:
